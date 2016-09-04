@@ -12,7 +12,7 @@
 #include <fstream>
 using namespace std;
 
-const int N = 10; //Å‘å”½•œ‰ñ”
+const int N = 10; //æœ€å¤§åå¾©å›žæ•°
 const double eps = pow(10.0, -8.0);
 
 double f(double x);
@@ -27,7 +27,7 @@ int main()
 
 	double ans = newton(x);
 
-	printf("“š‚¦‚Í x=%lf\n", ans);
+	printf("ç­”ãˆã¯ x=%lf\n", ans);
 
 	return 0;
 }
@@ -40,16 +40,16 @@ double newton(double x)
 	do {
 		d = -f(x) / df(x);
 		x = x + d;
-	} while (d > eps && n > N);
+	} while (abs(d) > eps && n > N);
 
 	if (n == N) {
-		cout << "“š‚¦‚ÍŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½B" << endl;
+		cout << "ç­”ãˆã¯è¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸã€‚" << endl;
 	}
 
 	return x;
 }
 
-//ŠÖ”‚Ì’è‹`
+//é–¢æ•°ã®å®šç¾©
 double f(double x)
 {
 	return (x - cos(x));
@@ -57,5 +57,5 @@ double f(double x)
 
 double df(double x)
 {
-	return (1 + sin(x));
+	return (1.0 + sin(x));
 }
