@@ -17,7 +17,7 @@ const double eps = pow(10.0, -8.0);
 
 double f(double x);
 double df(double x);
-double newton(double x);
+void newton(double x);
 
 int main()
 {
@@ -25,14 +25,12 @@ int main()
 
 	cin >> x;
 
-	double ans = newton(x);
-
-	printf("答えは x=%lf\n", ans);
+	newton(x);
 
 	return 0;
 }
 
-double newton(double x)
+void newton(double x)
 {
 	int n = 0;
 	double d;
@@ -44,9 +42,9 @@ double newton(double x)
 
 	if (n == N) {
 		cout << "答えは見つかりませんでした。" << endl;
+	} else{
+	    printf("答えはx=%lf\n", x);
 	}
-
-	return x;
 }
 
 //関数の定義
@@ -55,6 +53,7 @@ double f(double x)
 	return (x - cos(x));
 }
 
+//導関数
 double df(double x)
 {
 	return (1.0 + sin(x));
