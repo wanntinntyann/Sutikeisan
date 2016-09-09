@@ -12,29 +12,27 @@
 #include <fstream>
 using namespace std;
 
-const int N = 5;
+const int N = 4;
 
-int x[N];     //交換した列を記憶
-int zero_kazu[N];  //0の個数
+int x[N];  //交換した列を記憶
 
 //ファイルから読み込む
 void input_matrix(double **a, char c, FILE *fin, FILE *fout);
-void input_vector(double *b, char c, FILE *fin, FILE *fout);
 
 //メモリ解放
 void free_matrix(double **a);
-void free_vector(double *a);
 
 //行列、ベクトルのメモリ取得
 double **make_matrix();
-double *make_vector();
 
 void init();
-void show(FILE *fout, double **a, double *b);
+void show(FILE *fout, double **a);
 
-void sogyoretu(double **a, double *b);    //疎行列の処理
-void retu(double **a);                    //列交換
-void gyou(double **a, double *b);         //行交換
+void sogyoretu(double **a);    //疎行列全体の処理
+void retu(double **a);         //列交換
+
+//評価関数
+int hyoka(double **a);
 
 int main()
 {
@@ -51,27 +49,31 @@ int main()
 	}
 
 	double **A = make_matrix();
-	double *b = make_vector();
 
 	input_matrix(A, 'A', fin, fout);
-	input_vector(b, 'b', fin, fout);
 
 	init();
 
-	sogyoretu(A, b);
+	int before = hyoka(A);
 
-	show(fout, A, b);
+	cout << before << endl;
+
+	sogyoretu(A);
+
+	int after = hyoka(A);
+
+	cout << after << endl;
+
+	show(fout, A);
 
 	free_matrix(A);
-	free_vector(b);
 
 	return 0;
 }
 
-void sogyoretu(double **a, double *b)
+void sogyoretu(double **a)
 {
 	retu(a);
-	gyou(a, b);
 }
 
 void retu(double **a)
@@ -111,42 +113,7 @@ void retu(double **a)
 	}
 }
 
-void gyou(double **a, double *b)
-{
-	int max = -10;
-	int count = 0;
-
-	int pt;
-	int i, j, k;
-	for (i = 0; i < N - 1; i++) {
-		for (j = i; j < N; j++) {
-			for (k = 0; k < N; k++) {
-				if (a[j][k] == 0) {
-					count++;
-				}
-			}
-			if (max < count) {
-				max = count;
-				pt = j;
-			}
-			count = 0;
-		}
-		if (i != pt) {
-			double temp;
-			for (int l = 0; l < N; l++) {
-				temp = a[i][l];
-				a[i][l] = a[pt][l];
-				a[pt][l] = temp;
-			}
-			temp = b[i];
-			b[i] = b[pt];
-			b[pt] = temp;
-		}
-		max = -10;
-	}
-}
-
-void show(FILE *fout, double **a, double *b)
+void show(FILE *fout, double **a)
 {
 	fprintf(fout, "変形後の行列A\n");
 
@@ -156,13 +123,9 @@ void show(FILE *fout, double **a, double *b)
 		}
 		fprintf(fout, "\n");
 	}
-	fprintf(fout, "\n");
 
-	fprintf(fout, "変形後のベクトルb\n");
-	for (int i = 0; i < N; i++) {
-		fprintf(fout, "%5.2f", b[i]);
-	}
 	fprintf(fout, "\n\n");
+
 
 	fprintf(fout, "変形後の変形前の列の位置\n");
 	for (int i = 0; i < N; i++) {
@@ -208,15 +171,6 @@ double **make_matrix()
 	return a;
 }
 
-double *make_vector()
-{
-	double *a;
-
-	a = new double[N];
-
-	return a;
-}
-
 void free_matrix(double **a)
 {
 	for (int i = 0; i < N; i++) {
@@ -226,14 +180,27 @@ void free_matrix(double **a)
 	delete[] a;
 }
 
-void free_vector(double *a)
-{
-	delete[] a;
-}
-
 void init()
 {
 	for (int i = 0; i < N; i++) {
 		x[i] = i;
 	}
+}
+
+/*行の終わりから最初までの0が連続で続いた個数が多ければ
+それだけ0でない値が右によってると考えられる。すべての行の合計を足してリターンする*/
+int hyoka(double **a)
+{
+	int count = 0;
+	for (int i = 0; i < N; i++) {
+		for (int j = N - 1; j >= 0; j--){
+			if (a[i][j] == 0) {
+				count++;
+			} else{
+				break;
+			}
+		}
+	}
+
+	return count;
 }
