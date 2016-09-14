@@ -1,4 +1,4 @@
-#include <iostream>
+/*#include <iostream>
 #include <cmath>
 #include <ctime>
 #include <algorithm>
@@ -12,7 +12,7 @@
 #include <fstream>
 using namespace std;
 
-const int N = 4;
+const int N = 12;
 
 int x[N];  //交換した列を記憶
 
@@ -31,8 +31,8 @@ void show(FILE *fout, double **a);
 void sogyoretu(double **a);    //疎行列全体の処理
 void retu(double **a);         //列交換
 
-//評価関数
-int hyoka(double **a);
+							   //評価関数
+double hyoka(double **a);
 
 int main()
 {
@@ -54,13 +54,13 @@ int main()
 
 	init();
 
-	int before = hyoka(A);
+	double before = hyoka(A);
 
 	cout << before << endl;
 
 	sogyoretu(A);
 
-	int after = hyoka(A);
+	double after = hyoka(A);
 
 	cout << after << endl;
 
@@ -78,56 +78,45 @@ void sogyoretu(double **a)
 
 void retu(double **a)
 {
-	int max = -10;
-	int count = 0;
-
-	int pt;
+	int *temp = new int[N];
 	int i, j, k;
-	for (i = 0; i < N - 1; i++) {
-		for (j = i; j < N; j++) {
-			for (k = 0; k < N; k++) {
-				if (a[k][j] != 0) {
-					count++;
-				}
-			}
 
-			if (max < count) {
-				max = count;
-				pt = j;
+	int count = 0;
+	double val;
+
+	for (i = 0; i < N; i++) {
+		for (j = count; j < N; j++) {
+			if (a[i][j] != 0) {
+				for (k = 0; k < N; k++) {
+					val = a[k][count];
+					a[k][count] = a[k][j];
+					a[k][j] = val;
+				}
+				int t = x[j];
+				x[j] = x[count];
+				x[count] = t;
+				if (count >= N - 1) {
+					break;
+				}
+				count++;
 			}
-			count = 0;
 		}
-		if (i != pt) {
-			int t;
-			double temp;
-			for (int l = 0; l < N; l++) {
-				temp = a[l][i];
-				a[l][i] = a[l][pt];
-				a[l][pt] = temp;
-			}
-			t = x[i];
-			x[i] = x[pt];
-			x[pt] = t;
-		}
-		max = -10;
 	}
+
+	delete[] temp;
 }
 
 void show(FILE *fout, double **a)
 {
-	fprintf(fout, "変形後の行列A\n");
-
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N; j++) {
-			fprintf(fout, "%5.2f", a[i][j]);
+			fprintf(fout, "%.0f ", a[i][j]);
 		}
 		fprintf(fout, "\n");
 	}
 
 	fprintf(fout, "\n\n");
 
-
-	fprintf(fout, "変形後の変形前の列の位置\n");
 	for (int i = 0; i < N; i++) {
 		fprintf(fout, "%d ", x[i]);
 	}
@@ -135,27 +124,11 @@ void show(FILE *fout, double **a)
 
 void input_matrix(double **a, char c, FILE *fin, FILE *fout)
 {
-	fprintf(fout, "行列%cは次です。\n", c);
-
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N; j++) {
 			fscanf_s(fin, "%lf", &a[i][j]);
-			fprintf(fout, "%5.2f", a[i][j]);
 		}
-		fprintf(fout, "\n");
 	}
-	fprintf(fout, "\n");
-}
-
-void input_vector(double *a, char c, FILE *fin, FILE *fout)
-{
-	fprintf(fout, "ベクトル%cは次です。\n", c);
-
-	for (int i = 0; i < N; i++) {
-		fscanf_s(fin, "%lf", &a[i]);
-		fprintf(fout, "%5.2f\n", a[i]);
-	}
-	fprintf(fout, "\n");
 }
 
 double **make_matrix()
@@ -188,19 +161,26 @@ void init()
 }
 
 /*行の終わりから最初までの0が連続で続いた個数が多ければ
-それだけ0でない値が右によってると考えられる。すべての行の合計を足してリターンする*/
-int hyoka(double **a)
+それだけ0でない値が右によってると考えられる。すべての行の合計を足してリターンする
+double hyoka(double **a)
 {
-	int count = 0;
+	double value = 1;
+	double keisu = 1.0;
 	for (int i = 0; i < N; i++) {
-		for (int j = N - 1; j >= 0; j--){
-			if (a[i][j] == 0) {
-				count++;
-			} else{
-				break;
+		for (int j = 0; j < N - 1; j++) {
+			if (a[i][j] != 0) {
+				value += keisu * a[i][j];
+				if (a[i][j + 1] != 0) {
+					keisu *= 2.0;
+				}
+			}
+			else {
+				//もし途中で0になったら係数を1.0に戻す。
+				keisu = 1.0;
 			}
 		}
 	}
 
-	return count;
+	return value;
 }
+*/
