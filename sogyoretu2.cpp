@@ -71,7 +71,7 @@ int main()
 	init(A);
 
 	int count = 0;
-	while (count <= 100) {
+	while (count <= 10) {
 		sentaku(A);
 		kousa();
 		heni();
@@ -167,25 +167,57 @@ void free_matrix(double **a)
 
 void init(double **a)
 {
-	for (int i = 0; i < N; i++) {
-		x[i] = i;
-	}
-
 	srand((unsigned int)time(NULL));
 
-	int pt;
-	int i, j, k;
-	int max = -10;
-	int count = 0;
-
 	int *temp = new int[N];
+	int i, j, k;
+	int count = 0;
+	double val;
 
-	for (i = 0; i < N; i++) {
+	for (int i = 0; i < N; i++) {
+		x[i] = i;
 		temp[i] = i;
 	}
 
-	//ランダムに子を決める。
-	for (i = 0; i < KO; i++) {
+	for (i = 0; i < N; i++) {
+		for (j = count; j < N; j++) {
+			if (a[i][j] != 0) {
+				for (k = 0; k < N; k++) {
+					val = a[k][count];
+					a[k][count] = a[k][j];
+					a[k][j] = val;
+				}
+				int t = temp[j];
+				temp[j] = temp[count];
+				temp[count] = t;
+				child[KO - 1].iden[j] = temp[j];
+				child[KO - 1].iden[count] = temp[count];
+				if (count >= N - 1) {
+					break;
+				}
+				count++;
+			}
+		}
+	}
+
+	for (int i = 0; i < N; i++) {
+		int t = child[KO - 1].iden[i];
+		child[KO - 1].iden[i] = temp[t];
+		Visit[t] = true;
+		idensi(temp);
+	}
+
+	int pt;
+	int max = -10;
+	count = 0;
+
+	for (i = 0; i < N; i++) {
+		temp[i] = i;
+		Visit[i] = false;
+	}
+
+	//先に決めた子以外はランダムに決める。
+	for (i = 0; i < KO - 2; i++) {
 		for (j = 0; j < N; j++) {
 			do {
 				pt = rand() % N;
@@ -216,13 +248,13 @@ void sentaku(double **a)
 	int pt, pt2;
 	for (int i = 0; i < KO; i++) {
 		for (int j = 0; j < N; j++) {
+			//遺伝子からもとの列の形に戻す
 			pt = child[i].iden[j];
 			pt2 = idensi2(temp2, pt);
 			for (int k = 0; k < N; k++) {
 				temp[k][j] = a[k][pt2];
 			}
 		}
-
 		child[i].val = hyoka(temp);
 		for (int i = 0; i < N; i++) {
 			Visit[i] = false;
@@ -232,23 +264,12 @@ void sentaku(double **a)
 
 	sort(child.begin(), child.end(), hikaku);
 
-	//評価値の上8位からランダムに親を選択
-	int choose, choose2;
-	choose = rand() % (KO - 14) + 14;
+	parent[0] = child[KO - 1];
 
-	parent[0] = child[choose];
-	//Visit[choose] = true;
-	/*
-	do {
-		choose2 = rand() % (KO -13) + 13;
-		cout << "a" << endl;
-	}while(Visit[choose2]);
-	*/
-	parent[1] = child[choose - 1];
+	int choose = rand() % (KO - 14) + 13;
+	parent[1] = child[choose];
 
-	cout << parent[0].val << endl;
 
-	//Visit[choose] = false;
 	delete[] temp2;
 	free_matrix(temp);
 }
@@ -291,7 +312,7 @@ double hyoka(double **a)
 			if (a[i][j] != 0) {
 				value += keisu * a[i][j];
 				if (a[i][j + 1] != 0) {
-					keisu *= 2.0;
+					keisu++;
 				}
 			}
 			else {
