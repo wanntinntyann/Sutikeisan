@@ -16,9 +16,10 @@ using namespace std;
 const int N = 800;
 const int OYA = 2;
 const int KO = 20;
+int x[N];  //動かした列を記憶
 
 struct CHILD {
-	int val;      //評価値
+	double val;      //評価値
 	int iden[N];  //遺伝子
 };
 
@@ -44,7 +45,7 @@ void kousa();                    //交叉
 void heni();                     //突然変異
 void idensi(int *a);             //列を遺伝子の形にする
 int idensi2(int *a, int pt);     //遺伝子を列の形にする
-int hyoka(double **a);           //評価関数
+double hyoka(double **a);        //評価関数
 bool hikaku(const CHILD &a, const CHILD &b);  //sort関数で使う比較関数
 
 int main()
@@ -77,6 +78,7 @@ int main()
 		count++;
 	}
 
+
 	sogyoretu(A);
 
 	cout << hyoka(A) << endl;
@@ -104,6 +106,7 @@ void sogyoretu(double **a)
 		for (j = 0; j < N; j++) {
 			temp2[j][i] = a[j][pt2];
 		}
+		x[i] = pt2;
 	}
 
 	for (i = 0; i < N; i++) {
@@ -120,11 +123,15 @@ void show(FILE *fout, double **a)
 {
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N; j++) {
-			fprintf(fout, "%lf", a[i][j]);
+			fprintf(fout, "%.0f ", a[i][j]);
 		}
 		fprintf(fout, "\n");
 	}
 	fprintf(fout, "\n");
+
+	for (int i = 0; i < N; i++) {
+		fprintf(fout, "%d ", x[i]);
+	}
 }
 
 void input_matrix(double **a, FILE *fin, FILE *fout)
@@ -160,56 +167,25 @@ void free_matrix(double **a)
 
 void init(double **a)
 {
+	for (int i = 0; i < N; i++) {
+		x[i] = i;
+	}
+
 	srand((unsigned int)time(NULL));
 
-	int pt, pt2;
+	int pt;
 	int i, j, k;
 	int max = -10;
 	int count = 0;
 
 	int *temp = new int[N];
 
-
-	//最初の親はプログラム1のやり方の様にすれば大きい値から始められる。
 	for (i = 0; i < N; i++) {
 		temp[i] = i;
 	}
-
-	/*列の0でない要素が多い順に左に寄せる。その子の遺伝子を一つだけ作る。
-	そしてそれ以外はランダムに作る。*/
-	for (i = 0; i < N; i++) {
-		for (j = 0; j < N; j++) {
-			if (!Visit[j]) {
-				for (k = 0; k < N; k++) {
-					if (a[k][j] != 0) {
-						count++;
-					}
-				}
-
-				if (max <= count) {
-					max = count;
-					pt = j;
-				}
-				count = 0;
-			}
-		}
-		child[KO - 1].iden[i] = temp[pt];
-		Visit[pt] = true;
-		idensi(temp);
-		max = -10;
-	}
-
-	for (int i = 0; i < N; i++) {
-		Visit[i] = false;
-	}
-
-	for (i = 0; i < N; i++) {
-		temp[i] = i;
-	}
-
 
 	//ランダムに子を決める。
-	for (i = 0; i < KO - 1; i++) {
+	for (i = 0; i < KO; i++) {
 		for (j = 0; j < N; j++) {
 			do {
 				pt = rand() % N;
@@ -218,9 +194,9 @@ void init(double **a)
 			child[i].iden[j] = temp[pt];
 			idensi(temp);
 		}
-		for (int i = 0; i < N; i++) {
-			Visit[i] = false;
-			temp[i] = i;
+		for (k = 0; k < N; k++) {
+			Visit[k] = false;
+			temp[k] = k;
 		}
 	}
 
@@ -236,7 +212,7 @@ void sentaku(double **a)
 		temp2[i] = i;
 	}
 
-	//各遺伝子を評価値を計算
+	//各遺伝子の評価値を計算
 	int pt, pt2;
 	for (int i = 0; i < KO; i++) {
 		for (int j = 0; j < N; j++) {
@@ -256,11 +232,23 @@ void sentaku(double **a)
 
 	sort(child.begin(), child.end(), hikaku);
 
-	//評価値の上位2位を親に選択
-	parent[0] = child[KO - 1];
-	parent[1] = child[KO - 2];
+	//評価値の上8位からランダムに親を選択
+	int choose, choose2;
+	choose = rand() % (KO - 14) + 14;
+
+	parent[0] = child[choose];
+	//Visit[choose] = true;
+	/*
+	do {
+		choose2 = rand() % (KO -13) + 13;
+		cout << "a" << endl;
+	}while(Visit[choose2]);
+	*/
+	parent[1] = child[choose - 1];
+
 	cout << parent[0].val << endl;
-	
+
+	//Visit[choose] = false;
 	delete[] temp2;
 	free_matrix(temp);
 }
@@ -269,19 +257,18 @@ void sentaku(double **a)
 void kousa()
 {
 	int *a = new int[N];
-	double temp;
 
 	//一様交叉
 	for (int i = 0; i < KO - 3; i++) {
 		for (int j = 0; j < N; j++) {
 			a[j] = rand() % 2;
 		}
-		
+
 		for (int j = 0; j < N; j++) {
 			child[i].iden[j] = parent[0].iden[j];
 			child[i + 1].iden[j] = parent[1].iden[j];
 		}
-		
+
 		for (int j = 0; j < N; j++) {
 			if (a[j] == 1) {
 				child[i].iden[j] = parent[1].iden[j];
@@ -289,27 +276,32 @@ void kousa()
 			}
 		}
 	}
-	
+
 	delete[] a;
 }
 
-/*行の終わりから最初まで0が連続で続いた個数が多ければ
-それだけ0でない値が右によってるから優れてると考える。すべての行の合計を足してリターンする*/
-int hyoka(double **a)
+/*連続ならそれだけ詰まってるので連続してたら
+係数を大きくしいき評価値が大きくなるようにする*/
+double hyoka(double **a)
 {
-	int count = 0;
+	double value = 1;
+	double keisu = 1.0;
 	for (int i = 0; i < N; i++) {
-		for (int j = N - 1; j >= 0; j--) {
-			if (a[i][j] == 0) {
-				count++;
+		for (int j = 0; j < N - 1; j++) {
+			if (a[i][j] != 0) {
+				value += keisu * a[i][j];
+				if (a[i][j + 1] != 0) {
+					keisu *= 2.0;
+				}
 			}
 			else {
-				break;
+				//もし途中で0になったら係数を1.0に戻す。
+				keisu = 1.0;
 			}
 		}
 	}
-
-	return count;
+	
+	return value;
 }
 
 bool hikaku(const CHILD &a, const CHILD &b)
@@ -317,7 +309,7 @@ bool hikaku(const CHILD &a, const CHILD &b)
 	if (a.val - b.val < 0) {
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -332,7 +324,7 @@ void idensi(int *a)
 	}
 }
 
-int idensi2(int *a, int pt) 
+int idensi2(int *a, int pt)
 {
 	int k = 0;
 	for (int i = 0; i < N; i++) {
@@ -348,8 +340,19 @@ int idensi2(int *a, int pt)
 			return i;
 		}
 	}
+
+	return 0;
 }
 
 void heni()
 {
+	//ランダムで子を選んだ遺伝子を変化させる
+	int kakuritu, choose;
+
+	kakuritu = rand() % 100;
+
+	if (kakuritu >= 5) {
+		choose = rand() % KO;
+		child[choose].iden[2] = 1;
+	}
 }
