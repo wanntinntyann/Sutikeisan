@@ -13,17 +13,15 @@
 #include <fstream>
 using namespace std;
 
-const int N = 20;
-int x[N];  //交換した列を記憶
+const int N = 800;
+int x[N];           //交換した列を記憶
 
 //2度目の列移動の範囲
 int hani_start[N];
 int hani_end[N];
 
 double wari; //0でない数の割合
-int akusesu; //メモリにアクセスする回数
 vector<int> group;  //連続で続いている0でない数字が何個連続しているかを記憶する
-
 
 //ファイルから読み込む
 void input_matrix(double **a, char c, FILE *fin, FILE *fout);
@@ -63,8 +61,8 @@ int main()
 		cout << "作成できません。" << endl;
 		exit(1);
 	}
-
-	if (fopen_s(&fout3, "output3.ods", "w") != 0) {
+	
+	if (fopen_s(&fout3, "output3.csv", "w") != 0) {
 		cout << "作成できません。" << endl;
 		exit(1);
 	}
@@ -73,26 +71,33 @@ int main()
 
 	//input_matrix(A, 'A', fin, fout);
 
+	int akusesu;
+	fprintf(fout3, "x, y1, y2\n");
+	for (int i = 1; i <= 100; i++) {
+		init(A, fout3, i);
 
-//	for (int i = 1; i <= 10; i++) {
-		init(A, fout3, 10);
+		fprintf(fout3, "%lf,", wari);
+		//printf("%lf\n", wari);
+
+		akusesu = akusesu_keisan(A);
+	
+		fprintf(fout3, "%d,", akusesu);
+		//printf("%d", akusesu);
+		cout << endl;
 
 		//処理する前の行列を書き出す
 		show(fout, A);
-
-		cout << hyoka(A) << endl;
 
 		sogyoretu(A);
 
 		//処理が終わった後の疎行列を書き出す
 		show(fout2, A);
 
-		group_kazoeru(A);
+		akusesu = akusesu2_keisan(A);
 
-		cout << hyoka(A) << endl;
-
-		cout << wari << endl;
-	//}
+		fprintf(fout3, "%d\n", akusesu);
+		//printf("%d\n", akusesu);
+	}
 
 	free_matrix(A);
 
@@ -103,13 +108,14 @@ void show(FILE *fout, double **a)
 {
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N; j++) {
-			printf("%.0f ", a[i][j]);
+			//printf("%.0f ", a[i][j]);
 			fprintf(fout, "%.0f", a[i][j]);
 		}
-		printf("\n");
+		//printf("\n");
 		fprintf(fout, "\n");
 	}
-	printf("\n");
+	//printf("\n");
+
 	fprintf(fout, "\n\n");
 
 	for (int i = 0; i < N; i++) {
@@ -177,7 +183,6 @@ void init(double **a, FILE *fout, int kakuritu)
 	}
 
 	wari /= (N * N);
-	fprintf(fout, "%lf\n", wari);
 }
 
 /*行の終わりから最初までの0が連続で続いた個数が多ければ
@@ -292,20 +297,22 @@ int akusesu_keisan(double **a)
 //普通じゃない方法アクセスした場合のアクセス回数計算
 int akusesu2_keisan(double **a)
 {
+	group_kazoeru(a);
+
 	int val = 0;
-	int num = 0;
-	bool flag = false;
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < N; j++) {
-			if (a[i][j] != 0 && a[i][j + 1] != 0) {
-				val += 2;
-			}
-			else {
-			}
-		}
+	int val2 = 0;
+	
+	int size = group.size();
+
+	val = size * 2;
+
+	for (int i = 0; i < size; i++) {
+		val2 += group[i];
 	}
 
-	return val;
+	val2 = val2 * 2 + val;
+
+	return val2;
 }
 
 void group_kazoeru(double **a)
@@ -329,11 +336,4 @@ void group_kazoeru(double **a)
 			}
 		}
 	}
-
-	int num = group.size();
-
-	for (int i = 0; i < num; i++) {
-		cout << group[i] << " ";
-	}
-	cout << endl;
 }
