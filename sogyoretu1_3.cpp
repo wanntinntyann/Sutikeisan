@@ -40,7 +40,7 @@ void retu_sita(double **a, int x);  //2度目の列交換
 double hyoka(double **a);		    //評価関数
 
 int akusesu_keisan(double **a);     //普通のアクセスの回数計算
-int akusesu2_keisan(double **a);    //普通じゃい方のアクセスの回数計算
+int akusesu2_keisan(double **a);    //普通じゃない方のアクセスの回数計算
 void group_kazoeru(double **a);     //連続で続いてる数を数える
 
 int main()
@@ -72,34 +72,34 @@ int main()
 	//input_matrix(A, 'A', fin, fout);
 
 	int akusesu;
-	fprintf(fout3, "x, y1, y2\n");
+	fprintf(fout3, "x, やり方①, やり方②\n");
 	for (int i = 1; i <= 100; i++) {
 		init(A, fout3, i);
 
 		fprintf(fout3, "%lf,", wari);
-		//printf("%lf\n", wari);
+		printf("%lf,", wari);
 
 		akusesu = akusesu_keisan(A);
-	
 		fprintf(fout3, "%d,", akusesu);
-		//printf("%d", akusesu);
-		cout << endl;
+		printf("%d,", akusesu);
 
 		//処理する前の行列を書き出す
-		show(fout, A);
+		//show(fout, A);
 
 		sogyoretu(A);
+		akusesu = akusesu2_keisan(A);
+		fprintf(fout3, "%d\n", akusesu);
+		printf("%d\n", akusesu);
 
 		//処理が終わった後の疎行列を書き出す
-		show(fout2, A);
-
-		akusesu = akusesu2_keisan(A);
-
-		fprintf(fout3, "%d\n", akusesu);
-		//printf("%d\n", akusesu);
+		//show(fout2, A);
 	}
 
 	free_matrix(A);
+
+	fclose(fout);
+	fclose(fout2);
+	fclose(fout3);
 
 	return 0;
 }
@@ -108,19 +108,20 @@ void show(FILE *fout, double **a)
 {
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N; j++) {
-			//printf("%.0f ", a[i][j]);
+			printf("%.0f ", a[i][j]);
 			fprintf(fout, "%.0f", a[i][j]);
 		}
-		//printf("\n");
+		printf("\n");
 		fprintf(fout, "\n");
 	}
-	//printf("\n");
+	printf("\n");
 
-	fprintf(fout, "\n\n");
+	fprintf(fout, "\n");
 
 	for (int i = 0; i < N; i++) {
 		fprintf(fout, "%d ", x[i]);
 	}
+	fprintf(fout, "\n");
 }
 
 void input_matrix(double **a, char c, FILE *fin, FILE *fout)
@@ -156,6 +157,9 @@ void free_matrix(double **a)
 void init(double **a, FILE *fout, int kakuritu)
 {
 	srand((unsigned int)time(NULL));
+
+	//動的配列を空にする
+	group.clear();
 
 	for (int i = 0; i < N; i++) {
 		x[i] = i;
