@@ -13,13 +13,13 @@
 #include <fstream>
 using namespace std;
 
-const int N = 800;
+const int N = 100;
 int x[N];   //交換した列を記憶
 
 double wari; //0でない数の割合
 vector<int> group;  //連続で続いている0でない数字が何個連続しているかを記憶する
 
-//ファイルから読み込む
+					//ファイルから読み込む
 void input_matrix(double **a, char c, FILE *fin, FILE *fout);
 
 //メモリ解放
@@ -69,28 +69,28 @@ int main()
 
 	int akusesu;
 	fprintf(fout3, "x, やり方①, やり方②\n");
-	for (int i = 1; i <= 100; i++) {
-		init(A, fout3, i);
+	//for (int i = 1; i <= 100; i++) {
+		init(A, fout3, 20);
 
 		fprintf(fout3, "%lf,", wari);
 		printf("%lf,", wari);
 
-		akusesu = akusesu_keisan(A);
+		akusesu = akusesu2_keisan(A);
 		fprintf(fout3, "%d,", akusesu);
-		printf("%d,", akusesu);
+		printf("%d,", group.size());
 
 		//処理する前の行列を書き出す
-		//show(fout, A);
+		show(fout, A);
 
 		sogyoretu(A);
-		akusesu = akusesu2_keisan(A);
 
+		akusesu = akusesu2_keisan(A);
 		fprintf(fout3, "%d\n", akusesu);
-		printf("%d\n", akusesu);
+		printf("%d\n", group.size());
 
 		//処理が終わった後の疎行列を書き出す
-		//show(fout2, A);
-	}
+		show(fout2, A);
+	//}
 
 	free_matrix(A);
 
@@ -217,7 +217,7 @@ void retu(double **a)
 {
 	int *temp = new int[N];
 
-	交換の前と後の列の比較に使う変数
+	//交換の前と後の列の比較に使う変数
 	int before, after;
 
 	double val; //列の要素を交換するときに使う
@@ -238,7 +238,9 @@ void retu(double **a)
 				}
 
 				after = renketu_kazu(a, j) + renketu_kazu(a, i);
-
+				t = x[i];
+				x[i] = x[j];
+				x[j] = t;
 				//もし列を交換した後、逆に値が小さくなってたら元に戻す
 				if (after < before) {
 					for (k = 0; k < N; k++) {
@@ -246,12 +248,10 @@ void retu(double **a)
 						a[k][i] = a[k][j];
 						a[k][j] = val;
 					}
+					t = x[i];
+					x[i] = x[j];
+					x[j] = t;
 				}
-
-				//交換した列を記憶
-				t = x[i];
-				x[i] = x[j];
-				x[j] = t;
 			}
 		}
 	}
@@ -297,6 +297,7 @@ int akusesu_keisan(double **a)
 //普通じゃない方法アクセスした場合のアクセス回数計算
 int akusesu2_keisan(double **a)
 {
+	group.clear();
 	group_kazoeru(a);
 
 	int val = 0;
@@ -315,6 +316,7 @@ int akusesu2_keisan(double **a)
 	return val2;
 }
 
+//グループの中の数を計算
 void group_kazoeru(double **a)
 {
 	int kazu = 0;
@@ -332,7 +334,7 @@ void group_kazoeru(double **a)
 				}
 				group.push_back(kazu);
 				kazu = 0;
-				j = k;
+				j = k - 1;
 			}
 		}
 	}
