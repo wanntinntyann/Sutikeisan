@@ -22,9 +22,13 @@ protected:
 public:
 	MAT_VEC(const int n = 0);
 	~MAT_VEC();
+	double **Get_mat();
+	int *Get_vec();
+	int Get();
+	void show();
 };
 
-class FILE_MAIN : public MAT_VEC{
+class FILE_MAIN{
 protected:
 	FILE* fin;
 	FILE* fout;
@@ -38,8 +42,8 @@ public:
 
 class FILE_Sub : public FILE_MAIN {
 public:
-	void input_matrix(const int n);
-	void output_matrix(const int n);
+	void input_matrix(double **mat, int n);
+	void output_matrix(double **mat, int n);
 };
 
 
@@ -48,7 +52,7 @@ class MATRIX : public MAT_VEC{
 public:
 	MATRIX(int n) : MAT_VEC(n) {};
 	void sogyoretu();
-	void retu();
+	void retu();;
 	int renketu(int x);
 };
 
@@ -65,19 +69,19 @@ public:
 
 int main()
 {
-	int n = 800;
-
-	MATRIX matrix(n);
+	MATRIX matrix(800);
 	FILE_Sub file_sub;
 
-	file_sub.input_matrix(n);
+	file_sub.input_matrix(matrix.Get_mat(), 800);
 
 	matrix.sogyoretu();
+
+	matrix.show();
 
 	return 0;
 }
 
-MAT_VEC::MAT_VEC(int n)
+MAT_VEC::MAT_VEC(const int n)
 {
 	Num = n;
 
@@ -98,6 +102,32 @@ MAT_VEC::~MAT_VEC()
 
 	delete[] mat;
 	delete[] vec;
+}
+
+int MAT_VEC::Get()
+{
+	return Num;
+}
+
+double **MAT_VEC::Get_mat()
+{
+	return mat;
+}
+
+int *MAT_VEC::Get_vec()
+{
+	return vec;
+}
+
+void MAT_VEC::show()
+{
+	for (int i = 0; i < Num; i++) {
+		for (int j = 0; j < Num; j++) {
+			printf("%.0f ", mat[i][j]);
+		}
+		printf("\n");
+	}
+	printf("\n");
 }
 
 void FILE_MAIN::Open_file()
@@ -127,7 +157,7 @@ FILE_MAIN::~FILE_MAIN()
 	fclose(fout3);
 }
 
-void FILE_Sub::input_matrix(int n)
+void FILE_Sub::input_matrix(double **mat, int n)
 {
 	int i, j;
 	for (i = 0; i < n; i++) {
@@ -137,7 +167,7 @@ void FILE_Sub::input_matrix(int n)
 	}
 }
 
-void FILE_Sub::output_matrix(int n)
+void FILE_Sub::output_matrix(double **mat, int n)
 {
 	int i, j;
 	for (i = 0; i < n; i++) {
