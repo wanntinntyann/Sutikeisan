@@ -20,7 +20,7 @@ protected:
 	int *vec;
 	int Num;
 public:
-	MAT_VEC(const int n = 0);
+	MAT_VEC(int n = 10, bool flag = false, int prob = 10);
 	~MAT_VEC();
 	double **Get_mat();
 	int *Get_vec();
@@ -28,7 +28,8 @@ public:
 	void show();
 };
 
-class FILE_MAIN{
+//ファイル操作クラス
+class FILE_MAIN {
 protected:
 	FILE* fin;
 	FILE* fout;
@@ -39,25 +40,25 @@ public:
 	~FILE_MAIN();
 };
 
-
+//ファイルの書き込み等のクラス
 class FILE_Sub : public FILE_MAIN {
 public:
 	void input_matrix(double **mat, int n);
-	void output_matrix(double **mat, int n);
+	void output_matrix(double **mat, int *vec, int n);
 };
 
 
 //行列操作クラス
-class MATRIX : public MAT_VEC{
+class MATRIX : public MAT_VEC {
 public:
-	MATRIX(int n) : MAT_VEC(n) {};
+	MATRIX(int n, bool f = false, int p = 10) : MAT_VEC(n, f, p) {};
 	void sogyoretu();
 	void retu();;
 	int renketu(int x);
 };
 
 //メモリアクセス回数の計算クラス
-class KEISAN : public MAT_VEC{
+class KEISAN : public MAT_VEC {
 private:
 	double wari;
 	vector<int> group;
@@ -69,19 +70,24 @@ public:
 
 int main()
 {
-	MATRIX matrix(800);
+	int n = 800;
+
+	MATRIX matrix(n);
+
 	FILE_Sub file_sub;
 
-	file_sub.input_matrix(matrix.Get_mat(), 800);
+	file_sub.Open_file();
+
+	file_sub.input_matrix(matrix.Get_mat(), n);
 
 	matrix.sogyoretu();
 
-	matrix.show();
+	file_sub.output_matrix(matrix.Get_mat(), matrix.Get_vec(), n);
 
 	return 0;
 }
 
-MAT_VEC::MAT_VEC(const int n)
+MAT_VEC::MAT_VEC(const int n, bool flag, int prob)
 {
 	Num = n;
 
@@ -91,6 +97,26 @@ MAT_VEC::MAT_VEC(const int n)
 
 	for (int i = 0; i < n; i++) {
 		mat[i] = new double[n];
+	}
+
+	for (int i = 0; i < n; i++) {
+		vec[i] = i;
+	}
+
+	srand((unsigned int)time(NULL));
+	if (flag == true) {
+		int i, j;
+		for (i = 0; i < Num; i++) {
+			for (j = 0; j < Num; j++) {
+				int val = rand() % 100;
+				if (val < prob) {
+					mat[i][j] = 1;
+				}
+				else {
+					mat[i][j] = 0;
+				}
+			}
+		}
 	}
 }
 
@@ -132,7 +158,7 @@ void MAT_VEC::show()
 
 void FILE_MAIN::Open_file()
 {
-	if(fopen_s(&fin, "mat800x800.txt", "r") != 0) {
+	if (fopen_s(&fin, "mat800x800.txt", "r") != 0) {
 		exit(1);
 	}
 
@@ -160,6 +186,7 @@ FILE_MAIN::~FILE_MAIN()
 void FILE_Sub::input_matrix(double **mat, int n)
 {
 	int i, j;
+
 	for (i = 0; i < n; i++) {
 		for (j = 0; j < n; j++) {
 			fscanf_s(fin, "%lf", &mat[i][j]);
@@ -167,16 +194,20 @@ void FILE_Sub::input_matrix(double **mat, int n)
 	}
 }
 
-void FILE_Sub::output_matrix(double **mat, int n)
+void FILE_Sub::output_matrix(double **mat, int *vec, int n)
 {
 	int i, j;
 	for (i = 0; i < n; i++) {
 		for (j = 0; j < n; j++) {
-			fprintf(fout, "%lf", mat[i][j]);
+			fprintf(fout, "%.0f ", mat[i][j]);
 		}
 		fprintf(fout, "\n");
 	}
 	fprintf(fout, "\n");
+
+	for (int i = 0; i < n; i++) {
+		fprintf(fout, "%d ", vec[i]);
+	}
 }
 
 void MATRIX::sogyoretu()
@@ -194,7 +225,7 @@ void MATRIX::retu()
 
 	int i = 0, j = 0, k = 0;
 	for (i = 0; i < Num; i++) {
-		for (j = i; j < Num; j++) {
+		for (j = 0; j < Num; j++) {
 			if (i != j) {
 
 				before = renketu(j) + renketu(i);
