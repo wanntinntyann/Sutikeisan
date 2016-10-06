@@ -22,7 +22,11 @@ protected:
 	int Row;
 	int Col;
 public:
+<<<<<<< HEAD
 	MAT_VEC(const int r, const int c, bool, int prob);
+=======
+	MAT_VEC(int n = 10, bool flag = false, int prob = 10);
+>>>>>>> caea7a4cbe3fe3a16db88137aa073584e002d6e3
 	~MAT_VEC();
 	X **Get_mat();
 	int *Get_vec();
@@ -30,7 +34,8 @@ public:
 	void show();
 };
 
-class FILE_MAIN{
+//ファイル操作クラス
+class FILE_MAIN {
 protected:
 	fstream fin;
 	fstream fout;
@@ -41,25 +46,43 @@ public:
 	~FILE_MAIN();
 };
 
+<<<<<<< HEAD
 template<class X>
 class FILE_Sub : public FILE_MAIN {
 public:
 	void input_matrix(X **mat, int r, int c);
 	void output_matrix(X **mat, int *vec, int r, int c);
+=======
+//ファイルの書き込み等のクラス
+class FILE_Sub : public FILE_MAIN {
+public:
+	void input_matrix(double **mat, int n);
+	void output_matrix(double **mat, int *vec, int n);
+>>>>>>> caea7a4cbe3fe3a16db88137aa073584e002d6e3
 };
 
 
 //行列操作クラス
+<<<<<<< HEAD
 template<class X> class MATRIX : public MAT_VEC<X>{
 public:
 	MATRIX(int r, int c, bool f, int p) : MAT_VEC(r, c, f, p) {};
+=======
+class MATRIX : public MAT_VEC {
+public:
+	MATRIX(int n, bool f = false, int p = 10) : MAT_VEC(n, f, p) {};
+>>>>>>> caea7a4cbe3fe3a16db88137aa073584e002d6e3
 	void sogyoretu();
 	void retu();;
 	int renketu(int x);
 };
 
 //メモリアクセス回数の計算クラス
+<<<<<<< HEAD
 template<class X> class KEISAN : public MAT_VEC<X>{
+=======
+class KEISAN : public MAT_VEC {
+>>>>>>> caea7a4cbe3fe3a16db88137aa073584e002d6e3
 private:
 	double wari;
 	vector<int> group;
@@ -71,6 +94,7 @@ public:
 
 int main()
 {
+<<<<<<< HEAD
 	int r = 800;
 	int c = 800;
 
@@ -85,12 +109,31 @@ int main()
 	matrix.sogyoretu();
 
 	file_sub.output_matrix(matrix.Get_mat(), matrix.Get_vec(), r, c);
+=======
+	int n = 800;
+
+	MATRIX matrix(n);
+
+	FILE_Sub file_sub;
+
+	file_sub.Open_file();
+
+	file_sub.input_matrix(matrix.Get_mat(), n);
+
+	matrix.sogyoretu();
+
+	file_sub.output_matrix(matrix.Get_mat(), matrix.Get_vec(), n);
+>>>>>>> caea7a4cbe3fe3a16db88137aa073584e002d6e3
 
 	return 0;
 }
 
+<<<<<<< HEAD
 template<class X>
 MAT_VEC<X>::MAT_VEC(const int r, const int c, bool flag, int prob)
+=======
+MAT_VEC::MAT_VEC(const int n, bool flag, int prob)
+>>>>>>> caea7a4cbe3fe3a16db88137aa073584e002d6e3
 {
 	Row = r;
 	Col = c;
@@ -113,6 +156,26 @@ MAT_VEC<X>::MAT_VEC(const int r, const int c, bool flag, int prob)
 		int i, j;
 		for (i = 0; i < Row; i++) {
 			for (j = 0; j < Col; j++) {
+				int val = rand() % 100;
+				if (val < prob) {
+					mat[i][j] = 1;
+				}
+				else {
+					mat[i][j] = 0;
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < n; i++) {
+		vec[i] = i;
+	}
+
+	srand((unsigned int)time(NULL));
+	if (flag == true) {
+		int i, j;
+		for (i = 0; i < Num; i++) {
+			for (j = 0; j < Num; j++) {
 				int val = rand() % 100;
 				if (val < prob) {
 					mat[i][j] = 1;
@@ -168,8 +231,12 @@ void MAT_VEC<X>::show()
 
 void FILE_MAIN::Open_file(string str)
 {
+<<<<<<< HEAD
 	fin.open(str, ios::in);
 	if (!fin.is_open()) {
+=======
+	if (fopen_s(&fin, "mat800x800.txt", "r") != 0) {
+>>>>>>> caea7a4cbe3fe3a16db88137aa073584e002d6e3
 		exit(1);
 	}
 
@@ -201,13 +268,21 @@ template<class X>
 void FILE_Sub<X>::input_matrix(X **mat, int r, int c)
 {
 	int i, j;
+<<<<<<< HEAD
 	for (i = 0; i < r; i++) {
 		for (j = 0; j < c; j++) {
 			fin >> mat[i][j];
+=======
+
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < n; j++) {
+			fscanf_s(fin, "%lf", &mat[i][j]);
+>>>>>>> caea7a4cbe3fe3a16db88137aa073584e002d6e3
 		}
 	}
 }
 
+<<<<<<< HEAD
 template<class X>
 void FILE_Sub<X>::output_matrix(X **mat, int *vec, int r, int c)
 {
@@ -216,6 +291,14 @@ void FILE_Sub<X>::output_matrix(X **mat, int *vec, int r, int c)
 	for (i = 0; i < r; i++) {
 		for (j = 0; j < c; j++) {
 			fout << mat[i][j] << " ";
+=======
+void FILE_Sub::output_matrix(double **mat, int *vec, int n)
+{
+	int i, j;
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < n; j++) {
+			fprintf(fout, "%.0f ", mat[i][j]);
+>>>>>>> caea7a4cbe3fe3a16db88137aa073584e002d6e3
 		}
 		fout << endl;
 	}
@@ -224,6 +307,14 @@ void FILE_Sub<X>::output_matrix(X **mat, int *vec, int r, int c)
 	for (int i = 0; i < c; i++) {
 		fout << vec[i] << " ";
 	}
+<<<<<<< HEAD
+=======
+	fprintf(fout, "\n");
+
+	for (int i = 0; i < n; i++) {
+		fprintf(fout, "%d ", vec[i]);
+	}
+>>>>>>> caea7a4cbe3fe3a16db88137aa073584e002d6e3
 }
 
 template<class X>
@@ -242,8 +333,13 @@ void MATRIX<X>::retu()
 	int t = 0;  //交換した列を記憶する
 
 	int i = 0, j = 0, k = 0;
+<<<<<<< HEAD
 	for (i = 0; i < Row; i++) {
 		for (j = i; j < Col; j++) {
+=======
+	for (i = 0; i < Num; i++) {
+		for (j = 0; j < Num; j++) {
+>>>>>>> caea7a4cbe3fe3a16db88137aa073584e002d6e3
 			if (i != j) {
 
 				before = renketu(j) + renketu(i);
