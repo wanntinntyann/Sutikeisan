@@ -14,15 +14,17 @@
 using namespace std;
 
 //ベクトルと行列のクラス
+template<class X> 
 class MAT_VEC {
 protected:
-	double **mat;
+	X **mat;
 	int *vec;
-	int Num;
+	int Row;
+	int Col;
 public:
-	MAT_VEC(const int n = 0);
+	MAT_VEC(const int r, const int c, bool, int prob);
 	~MAT_VEC();
-	double **Get_mat();
+	X **Get_mat();
 	int *Get_vec();
 	int Get();
 	void show();
@@ -30,34 +32,34 @@ public:
 
 class FILE_MAIN{
 protected:
-	FILE* fin;
-	FILE* fout;
-	FILE* fout2;
-	FILE* fout3;
+	fstream fin;
+	fstream fout;
+	fstream fout2;
+	fstream fout3;
 public:
-	void Open_file();
+	void Open_file(string str);
 	~FILE_MAIN();
 };
 
-
+template<class X>
 class FILE_Sub : public FILE_MAIN {
 public:
-	void input_matrix(double **mat, int n);
-	void output_matrix(double **mat, int n);
+	void input_matrix(X **mat, int r, int c);
+	void output_matrix(X **mat, int *vec, int r, int c);
 };
 
 
 //行列操作クラス
-class MATRIX : public MAT_VEC{
+template<class X> class MATRIX : public MAT_VEC<X>{
 public:
-	MATRIX(int n) : MAT_VEC(n) {};
+	MATRIX(int r, int c, bool f, int p) : MAT_VEC(r, c, f, p) {};
 	void sogyoretu();
 	void retu();;
 	int renketu(int x);
 };
 
 //メモリアクセス回数の計算クラス
-class KEISAN : public MAT_VEC{
+template<class X> class KEISAN : public MAT_VEC<X>{
 private:
 	double wari;
 	vector<int> group;
@@ -69,34 +71,64 @@ public:
 
 int main()
 {
-	MATRIX matrix(800);
-	FILE_Sub file_sub;
+	int r = 800;
+	int c = 800;
 
-	file_sub.input_matrix(matrix.Get_mat(), 800);
+	MATRIX<double> matrix(r, c, false, 20);
+
+	FILE_Sub<double> file_sub;
+
+	file_sub.Open_file("mat800x800.txt");
+
+	file_sub.input_matrix(matrix.Get_mat(), r, c);
 
 	matrix.sogyoretu();
 
-	matrix.show();
+	file_sub.output_matrix(matrix.Get_mat(), matrix.Get_vec(), r, c);
 
 	return 0;
 }
 
-MAT_VEC::MAT_VEC(const int n)
+template<class X>
+MAT_VEC<X>::MAT_VEC(const int r, const int c, bool flag, int prob)
 {
-	Num = n;
+	Row = r;
+	Col = c;
 
-	vec = new int[n];
+	vec = new int[Row];
 
-	mat = new double*[n];
+	mat = new double*[Col];
 
-	for (int i = 0; i < n; i++) {
-		mat[i] = new double[n];
+	for (int i = 0; i < r; i++) {
+		mat[i] = new double[c];
+	}
+
+	for (int i = 0; i < Col; i++) {
+		vec[i] = i;
+	}
+
+	srand((unsigned int)time(NULL));
+
+	if (flag == true) {
+		int i, j;
+		for (i = 0; i < Row; i++) {
+			for (j = 0; j < Col; j++) {
+				int val = rand() % 100;
+				if (val < prob) {
+					mat[i][j] = 1;
+				}
+				else {
+					mat[i][j] = 0;
+				}
+			}
+		}
 	}
 }
 
-MAT_VEC::~MAT_VEC()
+template<class X>
+MAT_VEC<X>::~MAT_VEC()
 {
-	for (int i = 0; i < Num; i++) {
+	for (int i = 0; i < Row; i++) {
 		delete mat[i];
 	}
 
@@ -104,87 +136,104 @@ MAT_VEC::~MAT_VEC()
 	delete[] vec;
 }
 
-int MAT_VEC::Get()
+template<class X>
+int MAT_VEC<X>::Get()
 {
 	return Num;
 }
 
-double **MAT_VEC::Get_mat()
+template<class X>
+X **MAT_VEC<X>::Get_mat()
 {
 	return mat;
 }
 
-int *MAT_VEC::Get_vec()
+template<class X>
+int *MAT_VEC<X>::Get_vec()
 {
 	return vec;
 }
 
-void MAT_VEC::show()
+template<class X>
+void MAT_VEC<X>::show()
 {
-	for (int i = 0; i < Num; i++) {
-		for (int j = 0; j < Num; j++) {
-			printf("%.0f ", mat[i][j]);
+	for (int i = 0; i < Row; i++) {
+		for (int j = 0; j < Col; j++) {
+			cout << mat[i][j] << " ";
 		}
-		printf("\n");
+		cout << endl;
 	}
-	printf("\n");
+	cout << endl;
 }
 
-void FILE_MAIN::Open_file()
+void FILE_MAIN::Open_file(string str)
 {
-	if(fopen_s(&fin, "mat800x800.txt", "r") != 0) {
+	fin.open(str, ios::in);
+	if (!fin.is_open()) {
 		exit(1);
 	}
 
-	if (fopen_s(&fout, "output.txt", "w") != 0) {
+	fout.open("output.txt", ios::out);
+	if (!fout.is_open()) {
 		exit(1);
 	}
 
-	if (fopen_s(&fout2, "output2.txt", "w") != 0) {
+	fout2.open("output2.txt", ios::out);
+	if (!fout2.is_open()) {
 		exit(1);
 	}
 
-	if (fopen_s(&fout3, "output3.csv", "w") != 0) {
+	fout3.open("output3.csv", ios::out);
+	if (!fout3.is_open()) {
 		exit(1);
 	}
 }
 
 FILE_MAIN::~FILE_MAIN()
 {
-	fclose(fin);
-	fclose(fout);
-	fclose(fout2);
-	fclose(fout3);
+	fin.close();
+	fout.close();
+	fout2.close();
+	fout3.close();
 }
 
-void FILE_Sub::input_matrix(double **mat, int n)
+template<class X>
+void FILE_Sub<X>::input_matrix(X **mat, int r, int c)
 {
 	int i, j;
-	for (i = 0; i < n; i++) {
-		for (j = 0; j < n; j++) {
-			fscanf_s(fin, "%lf", &mat[i][j]);
+	for (i = 0; i < r; i++) {
+		for (j = 0; j < c; j++) {
+			fin >> mat[i][j];
 		}
 	}
 }
 
-void FILE_Sub::output_matrix(double **mat, int n)
+template<class X>
+void FILE_Sub<X>::output_matrix(X **mat, int *vec, int r, int c)
 {
 	int i, j;
-	for (i = 0; i < n; i++) {
-		for (j = 0; j < n; j++) {
-			fprintf(fout, "%lf", mat[i][j]);
+
+	for (i = 0; i < r; i++) {
+		for (j = 0; j < c; j++) {
+			fout << mat[i][j] << " ";
 		}
-		fprintf(fout, "\n");
+		fout << endl;
 	}
-	fprintf(fout, "\n");
+	fout << endl;
+
+	for (int i = 0; i < c; i++) {
+		fout << vec[i] << " ";
+	}
 }
 
-void MATRIX::sogyoretu()
+template<class X>
+void MATRIX<X>::sogyoretu()
 {
 	retu();
 }
 
-void MATRIX::retu()
+template<class X>
+void MATRIX<X>::retu()
 {
 	//交換の前と後の列の比較に使う変数
 	int before, after;
@@ -193,14 +242,14 @@ void MATRIX::retu()
 	int t = 0;  //交換した列を記憶する
 
 	int i = 0, j = 0, k = 0;
-	for (i = 0; i < Num; i++) {
-		for (j = i; j < Num; j++) {
+	for (i = 0; i < Row; i++) {
+		for (j = i; j < Col; j++) {
 			if (i != j) {
 
 				before = renketu(j) + renketu(i);
 
 				//列を交換
-				for (k = 0; k < Num; k++) {
+				for (k = 0; k < Row; k++) {
 					val = mat[k][i];
 					mat[k][i] = mat[k][j];
 					mat[k][j] = val;
@@ -212,7 +261,7 @@ void MATRIX::retu()
 				vec[j] = t;
 				//もし列を交換した後、逆に値が小さくなってたら元に戻す
 				if (after < before) {
-					for (k = 0; k < Num; k++) {
+					for (k = 0; k < Row; k++) {
 						val = mat[k][i];
 						mat[k][i] = mat[k][j];
 						mat[k][j] = val;
@@ -226,11 +275,12 @@ void MATRIX::retu()
 	}
 }
 
-int MATRIX::renketu(int x)
+template<class X>
+int MATRIX<X>::renketu(int x)
 {
 	int val = 0;
 	int k;
-	for (k = 0; k < Num; k++) {
+	for (k = 0; k < Row; k++) {
 		if (mat[k][x] != 0) {
 			if (mat[k][x + 1] != 0) {
 				val++;
@@ -246,16 +296,17 @@ int MATRIX::renketu(int x)
 	return val;
 }
 
-void KEISAN::group_kazoeru()
+template<class X>
+void KEISAN<X>::group_kazoeru()
 {
 	int kazu = 0;
 	int i, j, k;
 
-	for (i = 0; i < Num; i++) {
-		for (j = 0; j < Num; j++) {
+	for (i = 0; i < Row; i++) {
+		for (j = 0; j < Col; j++) {
 			if (mat[i][j] != 0) {
 				kazu++;
-				for (k = j + 1; k < Num; k++) {
+				for (k = j + 1; k < Col; k++) {
 					if (mat[i][k] == 0) {
 						break;
 					}
@@ -269,11 +320,12 @@ void KEISAN::group_kazoeru()
 	}
 }
 
-int KEISAN::akusesu_keisan()
+template<class X>
+int KEISAN<X>::akusesu_keisan()
 {
 	int val = 0;
-	for (int i = 0; i < Num; i++) {
-		for (int j = 0; j < Num; j++) {
+	for (int i = 0; i < Row; i++) {
+		for (int j = 0; j < Col; j++) {
 			if (mat[i][j] != 0) {
 				val += 3;
 			}
@@ -283,7 +335,8 @@ int KEISAN::akusesu_keisan()
 	return val;
 }
 
-int KEISAN::akusesu2_keisan()
+template<class X>
+int KEISAN<X>::akusesu2_keisan()
 {
 	group.clear();
 	group_kazoeru();
