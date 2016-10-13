@@ -29,6 +29,7 @@ public:
 	~MAT_VEC();
 	X **Get_mat();
 	X *Get_vec();
+	X *Get_ans();
 	void show();
 };
 
@@ -80,10 +81,10 @@ private:
 	vector<int> group;
 	vector<int> row;
 public:
-	int akusesu_keisan(X **mat);                   //普通のアクセスの回数計算
-	int akusesu2_keisan();                         //普通じゃない方のアクセスの回数計算
-	void group_kazoeru(X **mat);                   //連続で続いてる数を数える
-	void matrix_keisan(X **mat, X *vec, X *ans);   //行列とベクトルの積
+	int akusesu_keisan(X **mat);                     //普通のアクセスの回数計算
+	int akusesu2_keisan();                           //普通じゃない方のアクセスの回数計算
+	void group_kazoeru(X **mat);                     //連続で続いてる数を数える
+	void matrix_keisan(X **mat, X *vec, X *anser);   //行列とベクトルの積
 };
 
 int main()
@@ -92,10 +93,9 @@ int main()
 	int c = 10;
 
 	MATRIX<double> matrix(r, c, true , 20);
-
 	FILE_Sub<double> file_sub;
-
 	CSR<double> csr;
+	KEISAN<double> keisan;
 
 	//file_sub.Open_file("mat800x800.txt");
 
@@ -104,6 +104,8 @@ int main()
 	//行列の最適化
 	matrix.Optimi();
 
+	keisan.matrix_keisan(matrix.Get_mat(), matrix.Get_vec(), matrix.Get_ans());
+	
 	matrix.show();
 
 	//csr.Optimi(matrix.Get_mat(), r, c);
@@ -127,6 +129,10 @@ MAT_VEC<X>::MAT_VEC(const int r, const int c, bool flag, int prob)
 	}
 
 	anser = new X[Col];
+
+	FOR(i, 0, Col) {
+		anser[i] = 0;
+	}
 
 	srand((unsigned int)time(NULL));
 
@@ -174,6 +180,12 @@ X *MAT_VEC<X>::Get_vec()
 }
 
 template<class X>
+X *MAT_VEC<X>::Get_ans()
+{
+	return anser;
+}
+
+template<class X>
 void MAT_VEC<X>::show()
 {
 	FOR(i, 0, Row){
@@ -186,6 +198,10 @@ void MAT_VEC<X>::show()
 
 	FOR(i, 0, Col){
 		cout << vec[i] << " ";
+	}
+
+	FOR(i, 0, Col) {
+		cout << anser[i] << " ";
 	}
 	cout << endl;
 }
@@ -349,10 +365,13 @@ void KEISAN<X>::group_kazoeru(X **mat)
 template<class X>
 void KEISAN<X>::matrix_keisan(X **mat, X* vec, X *anser)
 {
-	int i, j;
+	int r = 0;
 	FOR(i, 0, row.size()) {
 		FOR(j, row[i], group[i]) {
-			anser = mat[row[j]] * vec[row[j]];
+			if (row[i - 1] > row[i] && i > 0) {
+				r++;
+			}
+			anser[r] = mat[r][row[j]] * vec[row[j]];
 		}
 	}
 }
