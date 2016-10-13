@@ -151,7 +151,7 @@ MAT_VEC<X>::MAT_VEC(const int r, const int c, bool flag, int prob)
 		}
 
 		for (i = 0; i < Col; i++) {
-			vec[i] = i;
+			vec[i] = i + 1;
 		}
 	}
 }
@@ -199,6 +199,7 @@ void MAT_VEC<X>::show()
 	FOR(i, 0, Col){
 		cout << vec[i] << " ";
 	}
+	cout << endl;
 
 	FOR(i, 0, Col) {
 		cout << anser[i] << " ";
@@ -371,7 +372,8 @@ void KEISAN<X>::matrix_keisan(X **mat, X* vec, X *anser)
 			if (row[i - 1] > row[i] && i > 0) {
 				r++;
 			}
-			anser[r] = mat[r][row[j]] * vec[row[j]];
+			cout << mat[r][row[j]] * vec[row[j]] << endl;
+			anser[r] += mat[r][row[j]] * vec[row[j]];
 		}
 	}
 }
