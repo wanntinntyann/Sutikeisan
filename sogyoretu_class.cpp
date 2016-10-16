@@ -33,12 +33,8 @@ public:
 	void show();
 };
 
-//ƒtƒ@ƒCƒ‹‘€ìƒNƒ‰ƒX
-<<<<<<< HEAD
-class FILE_MAIN {
-=======
+//ƒtƒ@ƒCƒ‹‘€ìƒNƒ‰ƒ
 class FILE_MAIN{
->>>>>>> 34df6a15ddbcb1f7c5b43034fe7544c2ba69c28d
 protected:
 	fstream fin;
 	fstream fout;
@@ -56,14 +52,9 @@ public:
 	void output_file(X **mat, X *vec, int r, int c);  //ƒtƒ@ƒCƒ‹‘‚«‚İ
 };
 
-//s—ñ‘€ìƒNƒ‰ƒX
-<<<<<<< HEAD
-template<class X>
-class MATRIX : public MAT_VEC<X> {
-=======
+//s—ñ‘€ìƒNƒ‰ƒXD
 template<class X> 
 class MATRIX : public MAT_VEC<X>{
->>>>>>> 34df6a15ddbcb1f7c5b43034fe7544c2ba69c28d
 public:
 	MATRIX(int r, int c, bool f, int p) : MAT_VEC(r, c, f, p) {};
 	void Optimi();
@@ -72,11 +63,7 @@ public:
 };
 
 template<class X>
-<<<<<<< HEAD
-class CSR {
-=======
 class CSR{
->>>>>>> 34df6a15ddbcb1f7c5b43034fe7544c2ba69c28d
 private:
 	vector<X> val;
 	vector<int> row;
@@ -88,16 +75,11 @@ public:
 
 //ƒƒ‚ƒŠƒAƒNƒZƒX‰ñ”‚ÌŒvZƒNƒ‰ƒX
 template<class X>
-<<<<<<< HEAD
-class KEISAN {
-=======
 class KEISAN{
->>>>>>> 34df6a15ddbcb1f7c5b43034fe7544c2ba69c28d
 private:
 	double wari;
 	vector<int> group;
 	vector<int> row;
-<<<<<<< HEAD
 	vector<int> col;
 public:
 	int akusesu_keisan(X **mat);                     //•’Ê‚ÌƒAƒNƒZƒX‚Ì‰ñ”ŒvZ
@@ -108,23 +90,15 @@ public:
 	int akusesu_keisan(X **mat);                     //•’Ê‚ÌƒAƒNƒZƒX‚Ì‰ñ”ŒvZ
 	int akusesu2_keisan();                           //•’Ê‚¶‚á‚È‚¢•û‚ÌƒAƒNƒZƒX‚Ì‰ñ”ŒvZ
 	void group_kazoeru(X **mat);                     //˜A‘±‚Å‘±‚¢‚Ä‚é”‚ğ”‚¦‚é
->>>>>>> 34df6a15ddbcb1f7c5b43034fe7544c2ba69c28d
 	void matrix_keisan(X **mat, X *vec, X *anser);   //s—ñ‚ÆƒxƒNƒgƒ‹‚ÌÏ
 };
 
 int main()
 {
-<<<<<<< HEAD
-	int r = 5;
-	int c = 5;
-
-	MATRIX<double> matrix(r, c, true, 40);
-=======
 	int r = 10;
 	int c = 10;
 
 	MATRIX<double> matrix(r, c, true , 20);
->>>>>>> 34df6a15ddbcb1f7c5b43034fe7544c2ba69c28d
 	FILE_Sub<double> file_sub;
 	CSR<double> csr;
 	KEISAN<double> keisan;
@@ -136,22 +110,15 @@ int main()
 	//s—ñ‚ÌÅ“K‰»
 	matrix.Optimi();
 
-<<<<<<< HEAD
 	keisan.group_kazoeru(matrix.Get_mat(), r, c);
 	keisan.matrix_keisan(matrix.Get_mat(), matrix.Get_vec(), matrix.Get_ans());
 
 	matrix.show();
 
-	//csr.Optimi(matrix.Get_mat(), r, c);
-
-=======
 	keisan.matrix_keisan(matrix.Get_mat(), matrix.Get_vec(), matrix.Get_ans());
-	
-	matrix.show();
 
 	//csr.Optimi(matrix.Get_mat(), r, c);
 
->>>>>>> 34df6a15ddbcb1f7c5b43034fe7544c2ba69c28d
 	file_sub.output_file(matrix.Get_mat(), matrix.Get_vec(), r, c);
 
 	return 0;
@@ -201,11 +168,7 @@ MAT_VEC<X>::MAT_VEC(const int r, const int c, bool flag, int prob)
 template<class X>
 MAT_VEC<X>::~MAT_VEC()
 {
-<<<<<<< HEAD
-	FOR(i, 0, Row) {
-=======
 	FOR(i, 0, Row){
->>>>>>> 34df6a15ddbcb1f7c5b43034fe7544c2ba69c28d
 		delete mat[i];
 	}
 
@@ -234,24 +197,15 @@ X *MAT_VEC<X>::Get_ans()
 template<class X>
 void MAT_VEC<X>::show()
 {
-<<<<<<< HEAD
-	FOR(i, 0, Row) {
-		FOR(j, 0, Col) {
-=======
 	FOR(i, 0, Row){
 		FOR(j, 0, Col){
->>>>>>> 34df6a15ddbcb1f7c5b43034fe7544c2ba69c28d
 			cout << mat[i][j] << " ";
 		}
 		cout << endl;
 	}
 	cout << endl;
 
-<<<<<<< HEAD
-	FOR(i, 0, Col) {
-=======
 	FOR(i, 0, Col){
->>>>>>> 34df6a15ddbcb1f7c5b43034fe7544c2ba69c28d
 		cout << vec[i] << " ";
 	}
 	cout << endl;
@@ -296,13 +250,8 @@ FILE_MAIN::~FILE_MAIN()
 template<class X>
 void FILE_Sub<X>::input_file(X **mat, X *vec, int r, int c)
 {
-<<<<<<< HEAD
-	FOR(i, 0, r) {
-		FOR(j, 0, c) {
-=======
 	FOR(i, 0, r){
 		FOR(j, 0, c){
->>>>>>> 34df6a15ddbcb1f7c5b43034fe7544c2ba69c28d
 			fin >> mat[i][j];
 		}
 	}
@@ -315,24 +264,15 @@ void FILE_Sub<X>::input_file(X **mat, X *vec, int r, int c)
 template<class X>
 void FILE_Sub<X>::output_file(X **mat, X *vec, int r, int c)
 {
-<<<<<<< HEAD
-	FOR(i, 0, r) {
-		FOR(j, 0, c) {
-=======
 	FOR(i, 0, r){
 		FOR(j, 0 ,c){
->>>>>>> 34df6a15ddbcb1f7c5b43034fe7544c2ba69c28d
 			fout << mat[i][j] << " ";
 		}
 		fout << endl;
 	}
 	fout << endl;
 
-<<<<<<< HEAD
-	FOR(i, 0, c) {
-=======
 	FOR(i, 0, c){
->>>>>>> 34df6a15ddbcb1f7c5b43034fe7544c2ba69c28d
 		fout << vec[i] << " ";
 	}
 }
@@ -408,11 +348,7 @@ int MATRIX<X>::renketu(int x)
 }
 
 template<class X>
-<<<<<<< HEAD
-void KEISAN<X>::group_kazoeru(X **mat, int r, int c)
-=======
 void KEISAN<X>::group_kazoeru(X **mat)
->>>>>>> 34df6a15ddbcb1f7c5b43034fe7544c2ba69c28d
 {
 	int kazu = 0;
 	int i, j, k;
@@ -421,14 +357,9 @@ void KEISAN<X>::group_kazoeru(X **mat)
 		for (j = 0; j < c; j++) {
 			if (mat[i][j] != 0) {
 				kazu++;
-<<<<<<< HEAD
 				row.push_back(i);
 				col.push_back(j);
-				for (k = j + 1; k < c; k++) {
-=======
-				row.push_back(j);
 				for (k = j + 1; k < Col; k++) {
->>>>>>> 34df6a15ddbcb1f7c5b43034fe7544c2ba69c28d
 					if (mat[i][k] == 0) {
 						break;
 					}
@@ -446,13 +377,7 @@ template<class X>
 void KEISAN<X>::matrix_keisan(X **mat, X* vec, X *anser)
 {
 	int r = 0;
-<<<<<<< HEAD
 
-	FOR(i, 0, row.size()) {
-		cout << row[i] << "," << group[i] << endl;
-		FOR(j, 0, group[i]) {
-			anser[row[i]] += mat[row[i]][col[i] + j] * vec[col[i] + j];
-=======
 	FOR(i, 0, row.size()) {
 		FOR(j, row[i], group[i]) {
 			if (row[i - 1] > row[i] && i > 0) {
@@ -460,7 +385,6 @@ void KEISAN<X>::matrix_keisan(X **mat, X* vec, X *anser)
 			}
 			cout << mat[r][row[j]] * vec[row[j]] << endl;
 			anser[r] += mat[r][row[j]] * vec[row[j]];
->>>>>>> 34df6a15ddbcb1f7c5b43034fe7544c2ba69c28d
 		}
 	}
 }
