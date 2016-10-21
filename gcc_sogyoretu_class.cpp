@@ -118,14 +118,14 @@ int main()
 template<class X>
 MAT_VEC<X>::MAT_VEC(const int r, const int c, bool flag, int prob)
 {
-	int i, j;
+	int i;
 	Row = r;
 	Col = c;
 
 	vec = new X[Col];
 
 	mat = new X*[Col];
-	for (int i = 0; i < r; i++) {
+	for (i = 0; i < r; i++) {
 		mat[i] = new X[c];
 	}
 
@@ -377,7 +377,6 @@ void KEISAN<X>::group_kazoeru(X **mat, int r, int c)
 template<class X>
 void KEISAN<X>::matrix_keisan(X **mat, X* vec, X *anser)
 {
-	int r = 0;
 	int i, j;
 
 	for(i = 0; i < row.size(); i++){
