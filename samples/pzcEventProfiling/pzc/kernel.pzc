@@ -1,0 +1,84 @@
+/*
+ * PEZY kernel code
+ * 
+ *	Copyright (c) 2016 PEZY Computing, K.K.
+ */
+
+#include "pzc_builtin.h"
+
+#define     __YSHIFT      (4)
+#define     __YMAX        (1<<__YSHIFT)
+#define     __YMASK       (__YMAX-1)
+
+#define __GET_OFFSET_STEP_X(__X_OFFSET__,__X_STEP__)	\
+{													\
+	unsigned int __tid    = get_tid();					\
+	unsigned int __tidmax = get_maxtid();					\
+	unsigned int __pid    = get_pid();					\
+	unsigned int __pidmax = get_maxpid();					\
+													\
+	if ( __pidmax <= __YMAX )						\
+	{												\
+    	__X_OFFSET__ = __tid + __tidmax * __pid;	\
+	    __X_STEP__   = __tidmax * __pidmax;			\
+	}												\
+	else											\
+	{												\
+        __pid    &= __YMASK;						\
+        __pidmax  = __YMAX;							\
+    	__X_OFFSET__ = __tid + __tidmax * __pid;	\
+	    __X_STEP__   = __tidmax * __pidmax;			\
+    }												\
+}													\
+
+
+#define __GET_OFFSET_STEP_Y(__Y_OFFSET__,__Y_STEP__)	\
+{												\
+	__Y_OFFSET__ = 0;							\
+	__Y_STEP__   = 1;							\
+	unsigned int __pid    = get_pid();				\
+	unsigned int __pidmax = get_maxpid();				\
+	if ( __pidmax >= __YMAX )					\
+	{											\
+        __pid    = __pid >> __YSHIFT;			\
+        __pidmax = __pidmax >> __YSHIFT;		\
+        										\
+        __Y_OFFSET__ = __pid;					\
+        __Y_STEP__   = __pidmax;				\
+    }											\
+}												\
+
+
+#define GetOffsetStepXY( __xOffset, __yOffset, __xStep, __yStep )		\
+			__GET_OFFSET_STEP_X( __xOffset, __xStep )	\
+			__GET_OFFSET_STEP_Y( __yOffset, __yStep )	\
+
+
+/*
+ * kernel function must have pzc_ prefix
+ */
+void pzc_Fill2D( int* a, int width, int height)
+{
+    int xOffset;
+    int yOffset;
+    int xStep;
+    int yStep;
+
+	// Make parameter for a city takes per-line.
+    GetOffsetStepXY( xOffset, yOffset, xStep, yStep );
+    
+    for (int y = yOffset; y < height; y+=yStep)
+	{
+		sync_L2(); // wait 128 threads for efficient cache
+
+	    for (int x = xOffset; x < width; x+=xStep)
+		{
+			unsigned int index = width * y + x;
+		    a[index] = ((y & 0xFFFF) << 16) | (x & 0xFFFF);
+		    chgthread();
+		}
+	}
+    
+    flush(); // cache flush
+}
+
