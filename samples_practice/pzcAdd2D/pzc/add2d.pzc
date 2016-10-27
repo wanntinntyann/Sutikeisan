@@ -1,0 +1,31 @@
+/*
+ * PEZY kernel code
+ *
+ * Copyright (c) 2016 PEZY Computing, K.K.
+ */
+#include "pzc_builtin.h"
+
+/*
+ * 2D array (2D Matrix) add sample
+ * dst = srcA + srcB
+ * m is row_size and n is column_size
+ */
+
+void
+pzc_Add2D(float *srcA, float *srcB, float *dst, int m, int n){
+	int pid  = get_pid();              // PE id (depends on work_size)
+	int local_tid  = get_tid();        // thread ID (0 - 7)
+	int tid  = pid * 8 + local_tid;    // global thread ID (depends on work_size)
+	int max_thread = get_maxpid() * 8;
+	int size = m * n;                  // matrix size
+	int rept = size / max_thread;      // repeat 'rept' times
+
+	// 'rept' indexes are assigned to each thread
+	for(int i=0;i<rept;i++){
+		int index = tid * rept + i;   // dst Matrix's index
+		dst[index] = srcA[index] + srcB[index];
+	}
+	
+	flush(); // cache flush
+}
+
