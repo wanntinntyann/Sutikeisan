@@ -1,0 +1,27 @@
+/*
+ * PEZY kernel code
+ * 
+ *	Copyright (c) 2016 PEZY Computing, K.K.
+ */
+#include "pzc_builtin.h"
+
+/*
+ * kernel function must have pz1_ prefix
+ */
+void pzc_Fill( unsigned int* pDst, unsigned int value, int count)
+{
+    int tid   = get_tid(); // thread ID (0 - 7)
+    int pid   = get_pid(); // PE id (depends on work_size)
+
+	int index = pid * get_maxtid() + tid;
+	
+	if( index >= count)
+	{
+		return;
+	}
+
+    pDst[index] = value;
+
+    flush(); // cache flush
+}
+

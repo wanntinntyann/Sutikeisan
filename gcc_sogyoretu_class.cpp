@@ -88,15 +88,15 @@ public:
 
 int main()
 {
-	int r = 5;
-	int c = 5;
+	int r = 7;
+	int c = 7;
 
-	MATRIX<double> matrix(r, c, true, 40);
+	MATRIX<double> matrix(r, c, false, 40);
 	FILE_Sub<double> file_sub;
 	CSR<double> csr;
 	KEISAN<double> keisan;
 
-	//file_sub.Open_file("mat800x800.txt");
+	file_sub.Open_file("input.txt");
 
 	file_sub.input_file(matrix.Get_mat(), matrix.Get_vec(), r, c);
 
@@ -150,11 +150,12 @@ MAT_VEC<X>::MAT_VEC(const int r, const int c, bool flag, int prob)
 				}
 			}
 		}
-
-		for (i = 0; i < Col; i++) {
-			vec[i] = i + 1;
-		}
 	}
+
+	for (i = 0; i < Col; i++) {
+		 vec[i] = i + 1;
+	}
+
 }
 
 template<class X>
@@ -211,12 +212,11 @@ void MAT_VEC<X>::show()
 
 void FILE_MAIN::Open_file(string str)
 {
-	/*
-	fin.open(str, ios::in);
+	fin.open(str.c_str(), ios::in);
 	if (!fin.is_open()) {
 		exit(1);
 	}
-
+	/*
 	fout.open("output.txt", ios::out);
 	if (!fout.is_open()) {
 		exit(1);
@@ -231,17 +231,15 @@ void FILE_MAIN::Open_file(string str)
 	if (!fout3.is_open()) {
 		exit(1);
 	}
-*/
+	*/
 }
 
 FILE_MAIN::~FILE_MAIN()
-{
-	/*
+{	
 	fin.close();
 	fout.close();
 	fout2.close();
 	fout3.close();
-	*/
 }
 
 template<class X>

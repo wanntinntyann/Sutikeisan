@@ -1,0 +1,119 @@
+/*
+ * PEZY kernel code
+ * 
+ *	Copyright (c) 2016 PEZY Computing, K.K.
+ */
+
+#include "pzc_builtin.h"
+
+#include "../../common/pzcperf.h"
+
+
+#define MAX_PERF  4
+
+PZCPerformance gPerf[MAX_PERF];
+
+/*
+ * kernel function must have pzc_ prefix
+ */
+void pzc_GetPerformance(
+	PZCPerformance* 	out,
+	int					idx
+	)
+{
+    int tid      = get_tid(); // thread ID (0 - 7)
+    int pid      = get_pid(); // PE id (depends on work_size)
+	
+	if( tid ==0 && pid==0 && idx < MAX_PERF)
+	{
+		*out = gPerf[ idx ];
+		gPerf[ idx ].Clear();
+	}
+	
+	flush();
+}
+
+void pzc_Add0( float* a, float* b, float* c, int count)
+{
+    int tid   = get_tid(); // thread ID (0 - 7)
+    int pid   = get_pid(); // PE id (depends on work_size)
+
+	int offset = pid * get_maxtid() + tid;
+	int step   = get_maxtid() * get_maxpid();
+
+	for( int pos = offset; pos < count; pos += step )
+	{
+    	c[pos] = a[pos] + b[pos];
+	}
+	flush();
+}
+
+void pzc_Add1( float* a, float* b, float* c, int count)
+{
+    int tid   = get_tid(); // thread ID (0 - 7)
+    int pid   = get_pid(); // PE id (depends on work_size)
+
+	int offset = pid * get_maxtid() + tid;
+	int step   = get_maxtid() * get_maxpid();
+
+	PZCPerformance stc, etc;
+
+  	if( pid == 0 && tid == 0 )
+	{
+		stc.Update();
+	}
+	sync();
+
+	for( int pos = offset; pos < count; pos += step )
+	{
+    	c[pos] = a[pos] + b[pos];
+	}
+
+	sync();
+	if( pid == 0 && tid == 0 )
+	{
+		etc.Update();
+		gPerf[ 0 ] = etc - stc;
+	}
+ 
+    flush(); // cache flush
+}
+
+void pzc_Add2( float* a, float* b, float* c, int count)
+{
+    int tid   = get_tid(); // thread ID (0 - 7)
+    int pid   = get_pid(); // PE id (depends on work_size)
+
+	int offset = pid * get_maxtid() + tid;
+	int step   = get_maxtid() * get_maxpid();
+
+	PZCPerformance stc, etc;
+
+  	if( pid == 0 && tid == 0 )
+	{
+		stc.Update();
+	}
+	sync();
+
+	for( int pos = offset; pos < count; pos += step )
+	{
+		float _a = a[pos];
+		float _b = b[pos];
+		
+		chgthread();
+				
+    	c[pos] = _a + _b;
+
+    	sync_L1();
+	}
+
+	sync();
+	if( pid == 0 && tid == 0 )
+	{
+		etc.Update();
+		gPerf[ 0 ] = etc - stc;
+	}
+
+    flush(); // cache flush
+}
+

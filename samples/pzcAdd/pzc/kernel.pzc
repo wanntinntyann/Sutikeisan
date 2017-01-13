@@ -1,0 +1,28 @@
+/*
+ * PEZY kernel code
+ * 
+ *	Copyright (c) 2016 PEZY Computing, K.K.
+ */
+
+#include "pzc_builtin.h"
+
+/*
+ * kernel function must have pzc_ prefix
+ */
+void pzc_Add( float* a, float* b, float* c, int count)
+{
+    int tid   = get_tid(); // thread ID (0 - 7)
+    int pid   = get_pid(); // PE id (depends on work_size)
+
+	int index = pid * get_maxtid() + tid;
+	
+	if( index >= count)
+	{
+		return;
+	}
+
+    c[index] = a[index] + b[index];
+    
+    flush(); // cache flush
+}
+
